@@ -1,0 +1,86 @@
+.home {
+  background: #fff;
+  min-width: 1200px;
+  width: 100vw;
+  min-height: 800px;
+  height: 100vh;
+
+  display: flex;
+  flex-flow: column nowrap;
+
+  header {
+    flex: 0 0 50px;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: center;
+
+    background: #80ffa1;
+  }
+
+  .content-wrapper {
+    display: flex;
+    flex: 1 0 auto;
+    flex-flow: row nowrap;
+    width: 100%;
+    .tool-box {
+      box-sizing: border-box;
+      flex: 0 0 160px;
+      height: 100%;
+      background: #fcfcfc;
+      border-right: solid 1px #eee;
+
+      display: flex;
+      flex-flow: column nowrap;
+      align-items: center;
+      padding-top: 10px;
+
+      ul {
+        padding-left: 0;
+
+        .node {
+          background: #fff;
+          display: flex;
+          flex-flow: row nowrap;
+          justify-content: center;
+          align-items: center;
+          margin-bottom: 20px;
+        }
+
+        .node-start {
+          width: 80px;
+          height: 40px;
+          border: solid 1px red;
+        }
+
+        .node-juge {
+          width: 80px;
+          height: 80px;
+          border-radius: 40px;
+          border: solid 1px blue;
+        }
+      }
+    }
+
+    .editor-wrapper {
+      flex: 1 0 auto;
+    }
+
+    .info-wrapper {
+      box-sizing: border-box;
+      flex: 0 0 220px;
+      height: 100%;
+      background: #fcfcfc;
+      border-left: solid 1px #eee;
+      display: flex;
+      flex-flow: column nowrap;
+      align-items: center;
+      padding-top: 10px;
+
+      .minimap-container {
+        width: 200px;
+        height: 160px;
+      }
+    }
+  }
+}
