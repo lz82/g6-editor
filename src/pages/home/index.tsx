@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 
 import classnames from 'classnames';
 import G6, { Minimap, Grid, Graph } from '@antv/g6';
@@ -7,37 +7,24 @@ import DragItem from '@/components/drag-item';
 import DropContainer from '@/components/drop-container';
 
 import css from './index.module.less';
+import { GraphData } from '@antv/g6/lib/types';
+import { IEdge } from '@antv/g6/lib/interface/item';
 
 const TOOLBAR_WIDTH = 160;
 const HEADER_HEIGHT = 50;
 const NODE_WIDTH = 80;
+let id = 1;
 
 const Home = () => {
   const editorRef = useRef<HTMLDivElement>(null);
   const minimapRef = useRef<HTMLDivElement>(null);
   const editor = useRef<Graph>();
+  // const [currentEdge, setCurrentEdge] = useState(null);
+  const edgeRef = useRef<IEdge>();
 
-  let data = {
-    // 点集
-    nodes: [
-      {
-        id: 'node1', // String，该节点存在则必须，节点的唯一标识
-        x: 100, // Number，可选，节点位置的 x 值
-        y: 200 // Number，可选，节点位置的 y 值
-      },
-      {
-        id: 'node2', // String，该节点存在则必须，节点的唯一标识
-        x: 300, // Number，可选，节点位置的 x 值
-        y: 200 // Number，可选，节点位置的 y 值
-      }
-    ],
-    // 边集
-    edges: [
-      {
-        source: 'node1', // String，必须，起始点 id
-        target: 'node2' // String，必须，目标点 id
-      }
-    ]
+  let data: GraphData = {
+    nodes: [],
+    edges: []
   };
 
   useEffect(() => {
@@ -50,9 +37,21 @@ const Home = () => {
       container: editorRef.current as HTMLDivElement,
       width: editorRef.current?.scrollWidth || 1000,
       height: editorRef.current?.scrollHeight || 800,
+      layout: {
+        type: 'dendrogram', // 布局类型
+        direction: 'TB', // 自左至右布局，可选的有 H / V / LR / RL / TB / BT
+        nodeSep: 50, // 节点之间间距
+        rankSep: 100 // 每个层级之间的间距
+      },
       plugins: [minimap, grid],
       modes: {
-        default: ['drag-node']
+        default: [
+          'drag-node'
+          // {
+          //   type: 'create-edge',
+          //   trigger: 'drag'
+          // }
+        ]
       },
       defaultNode: {
         size: 80,
@@ -60,6 +59,14 @@ const Home = () => {
           fill: '#fff',
           stroke: 'blue',
           lineWidth: 1
+        },
+        linkPoints: {
+          top: true,
+          right: true,
+          bottom: true,
+          left: true,
+          size: 10,
+          fill: '#fff'
         }
       }
     });
@@ -67,16 +74,69 @@ const Home = () => {
     editor.current.data(data);
 
     editor.current.render();
+
+    editor.current.on('aftercreateedge', () => {
+      if (editor.current) {
+        const graphData = editor.current.save() as GraphData;
+        data.edges = graphData.edges
+          ? graphData.edges.map((edge) => ({
+              source: edge.source as string,
+              target: edge.target as string
+            }))
+          : [];
+        const edges = graphData.edges;
+        if (edges && edges.length) {
+          G6.Util.processParallelEdges(edges);
+          editor.current.getEdges().forEach((edge, i) => {
+            editor.current?.updateItem(edge, edges[i]);
+          });
+        }
+      }
+    });
+
+    editor.current.on('mousedown', (evt: any) => {
+      console.log(evt, evt.target.get('className'));
+      if (evt.target.get('className').startsWith('link-point')) {
+        edgeRef.current = editor.current?.addItem('edge', {
+          source: evt.item._cfg.id,
+          target: evt.item._cfg.id
+        });
+        console.log('edgeref', edgeRef.current);
+      }
+    });
+
+    editor.current.on('mousemove', (evt: any) => {
+      if (edgeRef.current) {
+        const point = { x: evt.x, y: evt.y };
+        editor.current?.updateItem(edgeRef.current as IEdge, {
+          target: point
+        });
+      }
+    });
+
+    editor.current.on('mouseup', (evt: any) => {
+      console.log('mouseup', evt);
+      if (edgeRef.current) {
+        editor.current?.removeItem(edgeRef.current);
+        edgeRef.current = undefined;
+      }
+    });
   }, [data]);
 
   const onDragEnd = (item: { name: string }, position: { x: number; y: number }) => {
     console.log(item, position);
     if (position.x > TOOLBAR_WIDTH && position.y > HEADER_HEIGHT) {
       // 完全进入画布，则生成一个节点
-      data.nodes.push({
-        id: new Date() + '',
+      data.nodes?.push({
+        id: `id-${id++}`,
         x: position.x - (160 - NODE_WIDTH / 2),
-        y: position.y - (50 - NODE_WIDTH / 2)
+        y: position.y - (50 - NODE_WIDTH / 2),
+        anchorPoints: [
+          [0.5, 0],
+          [1, 0.5],
+          [0.5, 1],
+          [0, 0.5]
+        ]
       });
       editor.current && editor.current.data(data);
 
