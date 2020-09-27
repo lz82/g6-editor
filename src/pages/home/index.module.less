@@ -4,9 +4,11 @@
   width: 100vw;
   min-height: 800px;
   height: 100vh;
+  box-sizing: border-box;
 
   display: flex;
   flex-flow: column nowrap;
+  overflow: hidden;
 
   header {
     flex: 0 0 50px;
@@ -19,8 +21,8 @@
   }
 
   .content-wrapper {
-    display: flex;
     flex: 1 0 auto;
+    display: flex;
     flex-flow: row nowrap;
     width: 100%;
     .tool-box {

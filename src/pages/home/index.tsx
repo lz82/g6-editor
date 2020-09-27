@@ -8,11 +8,12 @@ import DropContainer from '@/components/drop-container';
 
 import css from './index.module.less';
 import { GraphData } from '@antv/g6/lib/types';
+
 import { IEdge } from '@antv/g6/lib/interface/item';
 
-const TOOLBAR_WIDTH = 160;
-const HEADER_HEIGHT = 50;
 const NODE_WIDTH = 80;
+const NODE_HEIGHT = 80;
+
 let id = 1;
 
 const Home = () => {
@@ -24,6 +25,7 @@ const Home = () => {
 
   const [graphData, setGraphData] = useState<GraphData>({
     nodes: [],
+    // 边集
     edges: []
   });
 
@@ -95,7 +97,10 @@ const Home = () => {
       container: minimapRef.current,
       size: [200, 160]
     });
+    const canvasDom = document.querySelector('#editor-wrapper') as HTMLElement;
+    console.log(canvasDom);
     const grid = new Grid();
+
     editor.current = new G6.Graph({
       container: editorRef.current as HTMLDivElement,
       width: editorRef.current?.scrollWidth || 1000,
@@ -169,7 +174,8 @@ const Home = () => {
   }, [graphData]);
 
   const onDragEnd = (item: { name: string }, position: { x: number; y: number }) => {
-    if (position.x > TOOLBAR_WIDTH && position.y > HEADER_HEIGHT) {
+    const point = editor.current?.getPointByClient(position.x, position.y);
+    if (point && point.x > 0 && point.y > 0) {
       // 完全进入画布，则生成一个节点
       const newNode = {
         id: `id-${id++}`,
@@ -208,9 +214,13 @@ const Home = () => {
             </DragItem>
           </ul>
         </div>
-        <DropContainer>
-          <div ref={editorRef} className={css['editor-wrapper']}></div>
-        </DropContainer>
+
+        <div id="editor-wrapper" className={css['editor-wrapper']}>
+          <DropContainer>
+            <div ref={editorRef}></div>
+          </DropContainer>
+        </div>
+
         <div className={css['info-wrapper']}>
           <div ref={minimapRef} className="minimap-container"></div>
         </div>
