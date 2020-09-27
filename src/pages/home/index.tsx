@@ -22,10 +22,73 @@ const Home = () => {
   // const [currentEdge, setCurrentEdge] = useState(null);
   const edgeRef = useRef<IEdge>();
 
-  let data: GraphData = {
+  const [graphData, setGraphData] = useState<GraphData>({
     nodes: [],
     edges: []
-  };
+  });
+
+  G6.registerBehavior('drag-point-add-edge', {
+    getEvents() {
+      return {
+        mousedown: 'onMouseDown',
+        mousemove: 'onMouseMove',
+        mouseup: 'onMouseUp',
+        'edge:click': 'onEdgeClick'
+      };
+    },
+    onMouseDown(ev: any) {
+      const self = this;
+      const node = ev.item;
+      console.log(node, self);
+      if (node && ev.target.get('className').startsWith('link-point')) {
+        const graph = self.graph as Graph;
+        const model = node.getModel();
+
+        if (!self.addingEdge && !self.edge) {
+          self.edge = graph.addItem('edge', {
+            source: model.id,
+            target: model.id
+          });
+          self.addingEdge = true;
+        }
+      }
+    },
+    onMouseMove(ev: any) {
+      const self = this;
+      const point = { x: ev.x, y: ev.y };
+      if (self.addingEdge && self.edge) {
+        (self.graph as Graph).updateItem(self.edge as IEdge, {
+          target: point
+        });
+      }
+    },
+    onMouseUp(ev: any) {
+      const self = this;
+      const node = ev.item;
+      const graph = self.graph as Graph;
+      if (node && ev.target.get('className')?.startsWith('link-point')) {
+        const model = node.getModel();
+
+        if (self.addingEdge && self.edge) {
+          graph.updateItem(self.edge as IEdge, {
+            target: model.id
+          });
+          self.edge = null;
+          self.addingEdge = false;
+        }
+      }
+    },
+    onEdgeClick(ev: any) {
+      const self = this;
+      const currentEdge = ev.item;
+      const graph = self.graph as Graph;
+      if (self.addingEdge && self.edge === currentEdge) {
+        graph.removeItem(self.edge as IEdge);
+        self.edge = null;
+        self.addingEdge = false;
+      }
+    }
+  });
 
   useEffect(() => {
     const minimap = new Minimap({
@@ -46,7 +109,8 @@ const Home = () => {
       plugins: [minimap, grid],
       modes: {
         default: [
-          'drag-node'
+          'drag-node',
+          'drag-point-add-edge'
           // {
           //   type: 'create-edge',
           //   trigger: 'drag'
@@ -71,63 +135,43 @@ const Home = () => {
       }
     });
 
-    editor.current.data(data);
+    editor.current.data(graphData);
 
     editor.current.render();
 
-    editor.current.on('aftercreateedge', () => {
-      if (editor.current) {
-        const graphData = editor.current.save() as GraphData;
-        data.edges = graphData.edges
-          ? graphData.edges.map((edge) => ({
-              source: edge.source as string,
-              target: edge.target as string
-            }))
-          : [];
-        const edges = graphData.edges;
-        if (edges && edges.length) {
-          G6.Util.processParallelEdges(edges);
-          editor.current.getEdges().forEach((edge, i) => {
-            editor.current?.updateItem(edge, edges[i]);
-          });
-        }
-      }
-    });
+    // editor.current.on('mousedown', (evt: any) => {
+    //   console.log(evt, evt.target.get('className'));
+    //   if (evt.target.get('className').startsWith('link-point')) {
+    //     edgeRef.current = editor.current?.addItem('edge', {
+    //       source: evt.item._cfg.id,
+    //       target: evt.item._cfg.id
+    //     });
+    //     console.log('edgeref', edgeRef.current);
+    //   }
+    // });
 
-    editor.current.on('mousedown', (evt: any) => {
-      console.log(evt, evt.target.get('className'));
-      if (evt.target.get('className').startsWith('link-point')) {
-        edgeRef.current = editor.current?.addItem('edge', {
-          source: evt.item._cfg.id,
-          target: evt.item._cfg.id
-        });
-        console.log('edgeref', edgeRef.current);
-      }
-    });
+    // editor.current.on('mousemove', (evt: any) => {
+    //   if (edgeRef.current) {
+    //     const point = { x: evt.x, y: evt.y };
+    //     editor.current?.updateItem(edgeRef.current as IEdge, {
+    //       target: point
+    //     });
+    //   }
+    // });
 
-    editor.current.on('mousemove', (evt: any) => {
-      if (edgeRef.current) {
-        const point = { x: evt.x, y: evt.y };
-        editor.current?.updateItem(edgeRef.current as IEdge, {
-          target: point
-        });
-      }
-    });
-
-    editor.current.on('mouseup', (evt: any) => {
-      console.log('mouseup', evt);
-      if (edgeRef.current) {
-        editor.current?.removeItem(edgeRef.current);
-        edgeRef.current = undefined;
-      }
-    });
-  }, [data]);
+    // editor.current.on('mouseup', (evt: any) => {
+    //   console.log('mouseup', evt);
+    //   if (edgeRef.current) {
+    //     editor.current?.removeItem(edgeRef.current);
+    //     edgeRef.current = undefined;
+    //   }
+    // });
+  }, [graphData]);
 
   const onDragEnd = (item: { name: string }, position: { x: number; y: number }) => {
-    console.log(item, position);
     if (position.x > TOOLBAR_WIDTH && position.y > HEADER_HEIGHT) {
       // 完全进入画布，则生成一个节点
-      data.nodes?.push({
+      const newNode = {
         id: `id-${id++}`,
         x: position.x - (160 - NODE_WIDTH / 2),
         y: position.y - (50 - NODE_WIDTH / 2),
@@ -137,10 +181,16 @@ const Home = () => {
           [0.5, 1],
           [0, 0.5]
         ]
-      });
-      editor.current && editor.current.data(data);
+      };
+      editor.current?.addItem('node', newNode);
+      // setGraphData((data) => ({
+      //   edges: data.edges,
+      //   nodes: [...(data.nodes || []), newNode]
+      // }));
 
-      editor.current && editor.current.render();
+      // editor.current && editor.current.data(graphData);
+
+      // editor.current && editor.current.render();
     }
   };
   return (
