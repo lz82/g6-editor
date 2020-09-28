@@ -67,7 +67,7 @@ const Home = () => {
       const self = this;
       const node = ev.item;
       const graph = self.graph as Graph;
-      if (node && ev.target.get('className')?.startsWith('link-point')) {
+      if (node) {
         const model = node.getModel();
 
         if (self.addingEdge && self.edge) {
@@ -77,40 +77,46 @@ const Home = () => {
           self.edge = null;
           self.addingEdge = false;
         }
-      }
-    },
-    onEdgeClick(ev: any) {
-      const self = this;
-      const currentEdge = ev.item;
-      const graph = self.graph as Graph;
-      if (self.addingEdge && self.edge === currentEdge) {
-        graph.removeItem(self.edge as IEdge);
-        self.edge = null;
-        self.addingEdge = false;
+      } else {
+        if (self.addingEdge && self.edge) {
+          graph.removeItem(self.edge as IEdge);
+          self.edge = null;
+          self.addingEdge = false;
+        }
       }
     }
   });
 
   useEffect(() => {
+    // const canvasDom = document.querySelector('#editor-wrapper') as HTMLElement;
+
+    // plugins define
     const minimap = new Minimap({
       container: minimapRef.current,
       size: [200, 160]
     });
-    const canvasDom = document.querySelector('#editor-wrapper') as HTMLElement;
-    console.log(canvasDom);
-    const grid = new Grid();
 
+    const grid = new G6.Grid();
     editor.current = new G6.Graph({
       container: editorRef.current as HTMLDivElement,
       width: editorRef.current?.scrollWidth || 1000,
       height: editorRef.current?.scrollHeight || 800,
+      fitCenter: true,
+      animate: true,
+
+      // layout: {
+      //   type: 'dagre',
+      //   rankdir: 'TB', // 可选，默认为图的中心
+      //   align: undefined, // 可选
+      //   nodesep: 20, // 可选
+      //   ranksep: 50, // 可选
+      //   controlPoints: true // 可选
+      // },
       layout: {
-        type: 'dendrogram', // 布局类型
-        direction: 'TB', // 自左至右布局，可选的有 H / V / LR / RL / TB / BT
-        nodeSep: 50, // 节点之间间距
-        rankSep: 100 // 每个层级之间的间距
+        type: 'dagre',
+        rankdir: 'TB'
       },
-      plugins: [minimap, grid],
+      plugins: [grid, minimap],
       modes: {
         default: [
           'drag-node',
@@ -136,48 +142,27 @@ const Home = () => {
           size: 10,
           fill: '#fff'
         }
+      },
+      defaultEdge: {
+        type: 'polyline',
+        style: {
+          stroke: '#F6BD16'
+        }
       }
     });
 
     editor.current.data(graphData);
 
     editor.current.render();
-
-    // editor.current.on('mousedown', (evt: any) => {
-    //   console.log(evt, evt.target.get('className'));
-    //   if (evt.target.get('className').startsWith('link-point')) {
-    //     edgeRef.current = editor.current?.addItem('edge', {
-    //       source: evt.item._cfg.id,
-    //       target: evt.item._cfg.id
-    //     });
-    //     console.log('edgeref', edgeRef.current);
-    //   }
-    // });
-
-    // editor.current.on('mousemove', (evt: any) => {
-    //   if (edgeRef.current) {
-    //     const point = { x: evt.x, y: evt.y };
-    //     editor.current?.updateItem(edgeRef.current as IEdge, {
-    //       target: point
-    //     });
-    //   }
-    // });
-
-    // editor.current.on('mouseup', (evt: any) => {
-    //   console.log('mouseup', evt);
-    //   if (edgeRef.current) {
-    //     editor.current?.removeItem(edgeRef.current);
-    //     edgeRef.current = undefined;
-    //   }
-    // });
   }, [graphData]);
 
   const onDragEnd = (item: { name: string }, position: { x: number; y: number }) => {
     const point = editor.current?.getPointByClient(position.x, position.y);
     if (point && point.x > 0 && point.y > 0) {
       // 完全进入画布，则生成一个节点
+      let key = `id-${id++}`;
       const newNode = {
-        id: `id-${id++}`,
+        id: key,
         x: position.x - (160 - NODE_WIDTH / 2),
         y: position.y - (50 - NODE_HEIGHT / 2),
         anchorPoints: [
@@ -185,7 +170,8 @@ const Home = () => {
           [1, 0.5],
           [0.5, 1],
           [0, 0.5]
-        ]
+        ],
+        label: key
       };
       editor.current?.addItem('node', newNode);
       // setGraphData((data) => ({
@@ -198,9 +184,22 @@ const Home = () => {
       // editor.current && editor.current.render();
     }
   };
+
+  const onRefresh = () => {
+    if (editor.current) {
+      // editor.current.refreshPositions();
+      // editor.current.render();
+      console.log(editor.current.save());
+      const newData = editor.current.save() as GraphData;
+      editor.current.read(newData);
+      // editor.current.changeData();
+    }
+  };
   return (
     <div className={css['home']}>
-      <header>流程编辑器 顶部</header>
+      <header>
+        流程编辑器 顶部 <button onClick={onRefresh}>refresh</button>
+      </header>
 
       <div className={css['content-wrapper']}>
         <div className={css['tool-box']}>
