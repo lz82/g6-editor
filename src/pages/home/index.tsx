@@ -102,8 +102,6 @@ const Home = () => {
       width: editorRef.current?.scrollWidth || 1000,
       height: editorRef.current?.scrollHeight || 800,
       fitCenter: true,
-      animate: true,
-
       // layout: {
       //   type: 'dagre',
       //   rankdir: 'TB', // 可选，默认为图的中心
