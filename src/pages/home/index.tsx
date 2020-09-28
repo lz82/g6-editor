@@ -1,15 +1,14 @@
 import React, { useRef, useEffect, useState } from 'react';
 
 import classnames from 'classnames';
+
 import G6, { Minimap, Grid, Graph } from '@antv/g6';
-
 import DragItem from '@/components/drag-item';
-import DropContainer from '@/components/drop-container';
-
-import css from './index.module.less';
 import { GraphData } from '@antv/g6/lib/types';
-
 import { IEdge } from '@antv/g6/lib/interface/item';
+
+import DropContainer from '@/components/drop-container';
+import css from './index.module.less';
 
 const NODE_WIDTH = 80;
 const NODE_HEIGHT = 80;
@@ -136,7 +135,7 @@ const Home = () => {
       data.nodes?.push({
         id: `id-${id++}`,
         x: position.x - (160 - NODE_WIDTH / 2),
-        y: position.y - (50 - NODE_WIDTH / 2),
+        y: position.y - (50 - NODE_HEIGHT / 2),
         anchorPoints: [
           [0.5, 0],
           [1, 0.5],
