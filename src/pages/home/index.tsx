@@ -161,26 +161,17 @@ const Home = () => {
     });
 
     const grid = new Grid();
-    const toolbar = new ToolBar();
+    // const toolbar = new ToolBar();
     const contextMenu = new Menu({
       getContent(graph: any) {
         console.log('graph', graph);
-        return `<ul>
-          <li title='1'>测试01</li>
-          <li title='2'>测试02</li>
-          <li>测试03</li>
-          <li>测试04</li>
-          <li>测试05</li>
-        </ul>`;
+        return `<span>删除</span>`;
       },
       handleMenuClick: (target: any, item: any) => {
         console.log(target, item);
       },
-      // offsetX and offsetY include the padding of the parent container
-      // 需要加上父级容器的 padding-left 16 与自身偏移量 10
-      offsetX: 16 + 10,
-      // 需要加上父级容器的 padding-top 24 、画布兄弟元素高度、与自身偏移量 10
-      offsetY: 24 + 28 + 10,
+      offsetX: 16,
+      offsetY: 40,
       // the types of items that allow the menu show up
       // 在哪些类型的元素上响应
       itemTypes: ['node', 'edge']
@@ -198,7 +189,7 @@ const Home = () => {
         ranksep: 30,
         类型: 30
       },
-      plugins: [grid, minimap, toolbar, contextMenu],
+      plugins: [grid, minimap, contextMenu],
       modes: {
         default: [
           'drag-node',
@@ -350,7 +341,7 @@ const Home = () => {
 
         <div id="editor-wrapper" className={css['editor-wrapper']}>
           <DropContainer>
-            <div ref={editorRef}></div>
+            <div className={css['canvas-wrapper']} ref={editorRef}></div>
           </DropContainer>
         </div>
 
