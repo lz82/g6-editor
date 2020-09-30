@@ -1815,6 +1815,11 @@
     "@types/react" "*"
     hoist-non-react-statics "^3.3.0"
 
+"@types/insert-css@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.npm.taobao.org/@types/insert-css/download/@types/insert-css-2.0.0.tgz#f323e1e1940c388e80fcf1e1b93de4b6dcefd431"
+  integrity sha1-8yPh4ZQMOI6A/PHhuT3kttzv1DE=
+
 "@types/istanbul-lib-coverage@*", "@types/istanbul-lib-coverage@^2.0.0":
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/@types/istanbul-lib-coverage/-/istanbul-lib-coverage-2.0.1.tgz#42995b446db9a48a11a07ec083499a860e9138ff"

@@ -55,12 +55,36 @@
           border: solid 1px red;
         }
 
-        .node-juge {
+        .node-common {
           width: 80px;
           height: 80px;
           box-sizing: border-box;
           border-radius: 40px;
           border: solid 1px blue;
+        }
+
+        .node-juge {
+          width: 80px;
+          height: 80px;
+          border: solid 1px yellow;
+          /* Rotate */
+          -webkit-transform: rotate(-45deg);
+          -moz-transform: rotate(-45deg);
+          -ms-transform: rotate(-45deg);
+          -o-transform: rotate(-45deg);
+          transform: rotate(-45deg);
+          /* Rotate Origin */
+          -webkit-transform-origin: 0 100%;
+          -moz-transform-origin: 0 100%;
+          -ms-transform-origin: 0 100%;
+          -o-transform-origin: 0 100%;
+          transform-origin: 0 100%;
+          position: relative;
+          top: 30px;
+          left: 40px;
+          span {
+            transform: rotate(45deg);
+          }
         }
       }
     }
@@ -70,6 +94,7 @@
       div {
         width: 100%;
         height: 100%;
+        position: relative;
       }
     }
 
@@ -88,6 +113,16 @@
         width: 200px;
         height: 160px;
       }
+
+      .info-editor {
+      }
     }
+  }
+}
+
+:global {
+  .g6-component-contextmenu {
+    top: 0 !important;
+    left: 0 !important;
   }
 }
