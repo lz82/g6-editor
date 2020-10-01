@@ -114,14 +114,33 @@
       }
 
       .info-editor {
+        width: 196px;
+        margin: 10px;
+        padding: 10px;
+        box-sizing: border-box;
+        border: solid 1px #ccc;
+        border-radius: 5px;
+
+        h4 {
+          text-align: center;
+        }
+
+        font-size: 12px;
+
+        .row {
+          display: flex;
+          flex-flow: column nowrap;
+
+          label {
+            padding-bottom: 5px;
+          }
+        }
+
+        .btn-wrapper {
+          padding-top: 15px;
+          text-align: center;
+        }
       }
     }
   }
 }
-
-// :global {
-//   .g6-component-contextmenu {
-//     width: 100px;
-//     height: 100px;
-//   }
-// }

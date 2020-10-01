@@ -161,14 +161,31 @@ const Home = () => {
     });
 
     const grid = new Grid();
-    // const toolbar = new ToolBar();
+    const toolbar = new ToolBar();
     const contextMenu = new Menu({
       getContent(graph: any) {
         console.log('graph', graph);
         return `<span>删除</span>`;
       },
       handleMenuClick: (target: any, item: any) => {
-        console.log(target, item);
+        const id = item.getID();
+        const type = item.getType();
+
+        if (type === 'edge') {
+          editor.current?.removeItem(item as IEdge);
+        } else if (type === 'node') {
+          let edges: IEdge[] = [];
+          editor.current?.getEdges().forEach((item) => {
+            if (item.getTarget().getID() === id || item.getSource().getID() === id) {
+              edges.push(item);
+            }
+          });
+          console.log(edges);
+          edges.forEach((edge) => {
+            editor.current?.removeItem(edge);
+          });
+          editor.current?.removeItem(item as IEdge);
+        }
       },
       offsetX: 16,
       offsetY: 40,
@@ -189,7 +206,7 @@ const Home = () => {
         ranksep: 30,
         类型: 30
       },
-      plugins: [grid, minimap, contextMenu],
+      plugins: [grid, minimap, toolbar, contextMenu],
       modes: {
         default: [
           'drag-node',
@@ -318,7 +335,7 @@ const Home = () => {
   return (
     <div className={css['home']}>
       <header>
-        流程编辑器 顶部 <button onClick={onRefresh}>对齐</button>
+        流程编辑器 &nbsp;&nbsp;&nbsp;<button onClick={onRefresh}>对齐</button>&nbsp;&nbsp;
         <button onClick={onShowData}>show Data</button>
       </header>
 
@@ -349,12 +366,16 @@ const Home = () => {
           <div ref={minimapRef} className="minimap-container"></div>
           {currentEditor.id ? (
             <div className={css['info-editor']}>
-              <form>
+              <h4>编辑</h4>
+
+              <div className={css['row']}>
                 <label>节点名称:</label>
                 <input value={currentEditor.label} onChange={onInputChange} />
+              </div>
 
+              <div className={css['btn-wrapper']}>
                 <button onClick={onEditorSave}>保存</button>
-              </form>
+              </div>
             </div>
           ) : null}
         </div>
