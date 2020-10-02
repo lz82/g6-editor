@@ -284,7 +284,6 @@ const Home = () => {
   };
 
   const onDragEnd = (item: { name: string }, position: { x: number; y: number }) => {
-    console.log(item);
     // const point = editor.current?.getPointByClient(position.x, position.y);
     // console.log(point);
     if (position && position.x > 160 && position.y > 50) {
