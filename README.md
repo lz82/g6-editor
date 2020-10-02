@@ -248,8 +248,9 @@ G6.registerBehavior('drag-point-add-edge', {
 ### 右键菜单、底部 grid、minimap
 
 这些都是`G6`提供的组件，只需要在初始化时传入`plugins`即可。
-[Minimap](https://antv-g6.gitee.io/zh/examples/tool/minimap)
-[ContextMenu](https://antv-g6.gitee.io/zh/examples/tool/contextMenu)
+
+- [Minimap](https://antv-g6.gitee.io/zh/examples/tool/minimap)
+- [ContextMenu](https://antv-g6.gitee.io/zh/examples/tool/contextMenu)
 
 ### 小结
 
