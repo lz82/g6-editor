@@ -206,7 +206,7 @@ const Home = () => {
         ranksep: 30,
         类型: 30
       },
-      plugins: [grid, minimap, toolbar, contextMenu],
+      plugins: [grid, minimap, contextMenu],
       modes: {
         default: [
           'drag-node',
